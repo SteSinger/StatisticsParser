@@ -94,6 +94,9 @@ function determineLangFilename (langType) {
         case 'es': // Spanish
             filename = 'assets/data/languagetext-es.json'
             break;
+        case 'de': // German
+            filename = 'assets/data/languagetext-de.json'
+            break;                        
         default :
             filename = 'assets/data/languagetext-en.json'
             break;
@@ -115,7 +118,8 @@ function infoReplace(strValue, searchValue, newvValue) {
 function determineRowType(strRow, langText) {
     var rowType = rowEnum.None;
 
-    if (strRow.substring(0, 7) === langText.table) {
+    if (strRow.substring(0, 7) === langText.table
+        || strRow.includes(langText.table) && langText.langvalue === 'de') { 
         rowType = rowEnum.IO;
     } else if ($.trim(strRow) === langText.executiontime) {
         rowType = rowEnum.ExectuionTime;
@@ -138,7 +142,10 @@ function processTimeRegEx(preText, postText) {
 
 function processTime(line, cputime, elapsedtime, milliseconds) {
     var section = line.split(',');
-
+    if(section[0] == '')
+    {
+        section = section.slice(1)
+    }
     var re = processTimeRegEx(cputime, milliseconds);
     var re2 = processTimeRegEx(elapsedtime, milliseconds);
 
@@ -148,6 +155,8 @@ function processTime(line, cputime, elapsedtime, milliseconds) {
 function processIOTableRow(line, tableResult, langText) {
     var section = line.split('\.');
     var tableName = getSubStr(section[0], '\'')
+    if(langText.langvalue === 'de')
+        tableName = section[0].substring(0, section[0].indexOf('-'))
     var tableData = section[1];
 
     // If not a statistics IO statement then end table (if necessary) and write line ending in <br />
